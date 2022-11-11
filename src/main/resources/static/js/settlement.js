@@ -90,3 +90,18 @@ function settlement2() {
     }
     window.location.href="/cart/confirm";
 }
+
+function settlementPost(){
+    let request = new XMLHttpRequest();
+    request.open("GET","http://172.20.75.75:80/confirm");
+    request.setRequestHeader("Origin","http://172.20.70.129:8080");
+    // let formData = new FormData();
+    // formData.append("totalCost",$("#totalprice"));
+    request.send();
+    request.onreadystatechange=function(){
+        if(request.readyState==4&&request.status==200){
+            window.open("/confirm");
+        }
+    }
+
+}

@@ -29,6 +29,7 @@ import javax.servlet.http.HttpSession;
  * @since 2022-10-22
  */
 @Controller
+//@CrossOrigin(origins = {"*"})
 @RequestMapping("/cart")
 @Slf4j
 public class CartController {
