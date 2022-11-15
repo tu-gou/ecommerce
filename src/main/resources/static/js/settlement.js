@@ -6,7 +6,7 @@ $(function(){
         var val = parseInt($(".qprice").eq(i).html().substring(1));
         totalCost += val;
     }
-    $("#totalprice").html("￥"+totalCost);
+    $("#totalprice").html(totalCost);
     //settlement2使用
     $("#settlement2_totalCost").val(totalCost);
 });
@@ -93,14 +93,14 @@ function settlement2() {
 
 function settlementPost(){
     let request = new XMLHttpRequest();
-    request.open("GET","http://172.20.75.75:80/confirm");
-    request.setRequestHeader("Origin","http://172.20.70.129:8080");
-    // let formData = new FormData();
-    // formData.append("totalCost",$("#totalprice"));
-    request.send();
+    request.open("POST","http://172.20.74.30:80/confirm");
+    // request.setRequestHeader("Origin","http://172.20.74.88:8080");
+    let formData = new FormData();
+    formData.append("totalCost",parseInt($("#totalprice").text()));
+    request.send(formData);
     request.onreadystatechange=function(){
         if(request.readyState==4&&request.status==200){
-            window.open("/confirm");
+            window.open("http://172.20.74.30:80/confirm2",'_blank');
         }
     }
 
