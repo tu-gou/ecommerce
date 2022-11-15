@@ -10,6 +10,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script type="text/javascript" src="/js/userForm.js"></script>
 <!--    <th:block th:include="common.html :: source"></th:block>-->
 </head>
 <body>
@@ -20,7 +21,7 @@
     <div class="regist">
         <div class="log_img"><img src="/images/l_img.png" width="611" height="425"/></div>
         <div class="reg_c">
-            <form id="register" action="/user/register" method="post" >
+<!--            <form id="register" action="/user/register" method="post" >-->
                 <table border="0" style="width:420px; font-size:14px; margin-top:20px;" cellspacing="0" cellpadding="0">
                     <tr height="50" valign="top">
                         <td width="95">&nbsp;</td>
@@ -46,7 +47,7 @@
                     </tr>
                     <tr height="50">
                         <td align="right"><font color="#ff4e00">*</font>&nbsp;姓名 &nbsp;</td>
-                        <td><input type="text" value="" name="userName" class="l_user" pattern="^[\u4e00-\u9fa5]+$" title="请输入正确的姓名" required/></td>
+                        <td><input type="text" value="" name="userName" id="l_userName" class="l_user" pattern="^[\u4e00-\u9fa5]+$" title="请输入正确的姓名" required/></td>
                     </tr>
                     <tr height="50">
                         <td align="right"><font color="#ff4e00">*</font>&nbsp;性别 &nbsp;</td>
@@ -75,10 +76,10 @@
                     </tr>
                     <tr height="60">
                         <td>&nbsp;</td>
-                        <td><input type="submit" value="立即注册" class="log_btn"/></td>
+                        <td><input type="submit" value="立即注册"  onclick="registerPost()" class="log_btn"/></td>
                     </tr>
                 </table>
-            </form>
+<!--            </form>-->
         </div>
     </div>
 </div>
