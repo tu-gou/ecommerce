@@ -75,11 +75,11 @@ public class MD5Util {
      *
      * @param password 原密码
      *
-     * @param password 加密之后的密码
+     * @param md5str 加密之后的密码
      *
      *@return boolean true表示和原密码一致   false表示和原密码不一致
      */
-    public static boolean getSaltverifyMD5(String password, String md5str) {
+    public static boolean getSaltVerifyMD5(String password, String md5str) {
         char[] cs1 = new char[32];
         char[] cs2 = new char[16];
         for (int i = 0; i < 48; i += 3) {

@@ -9,10 +9,16 @@
 </div>
 <head>
     <meta charset="UTF-8">
-    <title>欢迎登陆ecommerce商城</title>
+    <title>欢迎登录ecommerce商城</title>
+    <script type="text/javascript" src="/js/userForm.js"></script>
+    <script type="text/javascript" src="/js/crypto-js.min.js"></script>
+    <script type="text/javascript" src="/js/SHA1.js"></script>
     <th:block th:include="common.html :: source"></th:block>
 </head>
-<body>
+<body onkeydown="if(event.keyCode===13) document.all.log_btn.click()">
+
+
+
 <div class="log_bg">
     <div class="top">
         <div class="logo"></div>
@@ -20,7 +26,7 @@
     <div class="login">
         <div class="log_img"><img src="/images/l_img.png" width="611" height="425" /></div>
         <div class="log_c">
-            <form action="/user/login" method="post">
+<!--            <form action="/user/login" method="post">-->
                 <table border="0" style="width:370px; font-size:14px; margin-top:30px;" cellspacing="0" cellpadding="0">
                     <tr height="50" valign="top">
                         <td width="55">&nbsp;</td>
@@ -53,11 +59,11 @@
                     </tr>
                     <tr height="60">
                         <td>&nbsp;</td>
-                        <td><input type="submit" value="登录" class="log_btn" /></td>
+                        <td><input type="button" value="登录"  onclick="loginPost()" class="log_btn" id="log_btn" /></td>
                     </tr>
                 </table>
-                <input type="hidden" value="${flag }" name="flag"/>
-            </form>
+<!--                <input type="hidden" value="${flag }" name="flag"/>-->
+<!--            </form>-->
         </div>
     </div>
 </div>

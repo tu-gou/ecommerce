@@ -9,11 +9,13 @@
 </div>
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>注册账户</title>
     <script type="text/javascript" src="/js/userForm.js"></script>
+    <script type="text/javascript" src="/js/crypto-js.min.js"></script>
+    <script type="text/javascript" src="/js/SHA1.js"></script>
 <!--    <th:block th:include="common.html :: source"></th:block>-->
 </head>
-<body>
+<body onkeydown="if(event.keyCode===13) document.all.log_btn.click()">
 <div class="log_bg">
     <div class="top">
         <div class="logo"></div>
@@ -76,7 +78,7 @@
                     </tr>
                     <tr height="60">
                         <td>&nbsp;</td>
-                        <td><input type="submit" value="立即注册"  onclick="registerPost()" class="log_btn"/></td>
+                        <td><input type="button" value="立即注册"  onclick="registerPost()" id="log_btn" class="log_btn"/></td>
                     </tr>
                 </table>
 <!--            </form>-->

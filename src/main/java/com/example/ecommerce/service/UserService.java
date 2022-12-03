@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.ecommerce.form.UserLoginForm;
 import com.example.ecommerce.form.UserRegisterForm;
 
+import java.security.NoSuchAlgorithmException;
+
 /**
  * <p>
  *  服务类
@@ -15,7 +17,7 @@ import com.example.ecommerce.form.UserRegisterForm;
  */
 public interface UserService extends IService<User> {
 
-    public User register(UserRegisterForm userRegisterForm);
-    public User login(UserLoginForm userLoginForm);
+    public User register(UserRegisterForm userRegisterForm) throws NoSuchAlgorithmException;
+    public User login(UserLoginForm userLoginForm) throws NoSuchAlgorithmException;
 
 }

@@ -1,32 +1,39 @@
 package com.example.ecommerce.controller;
 
 
+import com.baomidou.mybatisplus.core.assist.ISqlRunner;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.ecommerce.entity.User;
 import com.example.ecommerce.entity.UserAddress;
 import com.example.ecommerce.exception.EcommerceException;
 import com.example.ecommerce.form.UserLoginForm;
 import com.example.ecommerce.form.UserRegisterForm;
+import com.example.ecommerce.mapper.UserMapper;
 import com.example.ecommerce.result.ResponseEnum;
 import com.example.ecommerce.service.CartService;
 import com.example.ecommerce.service.OrdersService;
 import com.example.ecommerce.service.UserAddressService;
 import com.example.ecommerce.service.UserService;
+import com.example.ecommerce.utils.AESUtil;
+import com.example.ecommerce.utils.GenUtil;
 import com.example.ecommerce.utils.RegexValidateUtil;
+import com.example.ecommerce.utils.SHA1;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -51,6 +58,12 @@ public class UserController {
     @Autowired
     private UserAddressService userAddressService;
 
+    @Autowired
+    private UserMapper userMapper;
+
+    private String inquiry;
+
+
     /**
      * 用户注册
      * @param userRegisterForm
@@ -58,7 +71,8 @@ public class UserController {
      * @return
      */
     @PostMapping("/register")
-    public String register(UserRegisterForm userRegisterForm, BindingResult bindingResult) {//封装所有的前台注册产生的错误
+    public String register(@Valid UserRegisterForm userRegisterForm, BindingResult bindingResult) throws NoSuchAlgorithmException {//封装所有的前台注册产生的错误
+        System.out.println(userRegisterForm);
         //用户信息非空校验
         if (bindingResult.hasErrors()) {
             log.info("【用户注册】用户信息不能为空");//控制台打印错误信息
@@ -80,8 +94,9 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public String login(@Valid UserLoginForm userLoginForm, BindingResult bindingResult, HttpSession session){
+    public String login(@Valid UserLoginForm userLoginForm, BindingResult bindingResult, HttpSession session) throws NoSuchAlgorithmException {
         //用户信息非空校验
+        System.out.println(userLoginForm);
         if (bindingResult.hasErrors()) {
             log.info("【用户登录】用户信息不能为空");//控制台打印错误信息
             throw new EcommerceException(ResponseEnum.USER_INFO_NULL);
@@ -93,6 +108,75 @@ public class UserController {
         session.setAttribute("user" ,login);
         return "redirect:/productCategory/main";
     }
+
+
+
+
+
+
+    /**
+     * 用户登录认证
+     */
+    @PostMapping("/authentication0")
+    @ResponseBody
+    public String Auth0(@Valid UserLoginForm userLoginForm, HttpServletResponse response,HttpSession httpSession) throws NoSuchAlgorithmException {
+//        user_account user=mapper.getUser(username,password);
+//        String ack;
+//        if(user==null){
+//            ack="no";
+        String userName=AESUtil.decrypt(userLoginForm.getLoginName());
+        String password=userLoginForm.getPassword();
+        String ack;
+        //判断用户名是否存在
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("login_name", userName);
+        User user = this.userMapper.selectOne(queryWrapper);
+        if (user == null) {
+            ack="no";
+            log.info("【用户登录】用户名不存在");
+            throw new EcommerceException(ResponseEnum.USERNAME_NOT_EXISTS);
+        } else{
+            Cookie cookie0=new Cookie("username",userName);
+            Cookie cookie1=new Cookie("password",password);
+            response.addCookie(cookie0);
+            response.addCookie(cookie1);
+            ack= GenUtil.generate();
+            inquiry=ack;
+        }
+
+        User login = this.userService.login(userLoginForm);
+        httpSession.setAttribute("user" ,login);
+
+        return ack;
+    }
+    @PostMapping("/authentication1")
+    @ResponseBody
+    public String Auth1(HttpServletRequest request, String digest) throws NoSuchAlgorithmException {
+        Cookie[] cookies=request.getCookies();
+        String hashcode="";
+        for(Cookie cookie:cookies){
+//            if(cookie.getName().equals("password")){
+//                hashcode=mapper.getHashcode(cookie.getValue());
+//            }
+            if (cookie.getName().equals("SHA1LoginName")) {
+
+                hashcode=cookie.getValue();
+            }
+        }
+        String digest2= SHA1.sha1(hashcode+inquiry);
+        System.out.println(hashcode+inquiry);
+        System.out.println(digest2);
+        if(digest2.equals(digest)){
+            return "yes";
+        }else{
+            return "no";
+        }
+    }
+
+
+
+
+
 
     /**
      * 返回当前用户的订单列表

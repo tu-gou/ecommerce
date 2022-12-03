@@ -15,9 +15,13 @@ public class UserRegisterForm {//可以对非浏览器提交的数据进行校�
     @NotEmpty(message = "密码不能为空")
     private String password;
     @NotNull(message = "性别不能为空")
-    private Integer gender;
-    @NotEmpty(message = "邮箱不能为空")
-    private String email;
+    private String gender;
     @NotEmpty(message = "手机不能为空")
     private String mobile;
+
+    private String SHA1LoginName;
+    private String SHA1UserName;
+    private String SHA1Password;
+    private String SHA1Gender;
+    private String SHA1Mobile;
 }

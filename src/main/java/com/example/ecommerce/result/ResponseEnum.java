@@ -19,7 +19,8 @@ public enum ResponseEnum {
     ORDERS_CREATE_ERROR(15,"创建订单主表失败"),
     ORDER_DETAIL_CREATE_ERROR(15,"创建订单详情失败"),
     USER_ADDRESS_ADD_ERROR(17,"添加新地址失败"),
-    USER_ADDRESS_SET_DEFAULT_ERROR(18,"默认地址修改失败");
+    USER_ADDRESS_SET_DEFAULT_ERROR(18,"默认地址修改失败"),
+    USER_REGISTER_DATA_ERROR(19,"数据内容出错");
 
 
     public Integer getCode() {
