@@ -73,6 +73,11 @@ public class AESUtil {
      * @return
      */
     public static boolean MACVerify(String plainText,String SHA1Cipher) throws NoSuchAlgorithmException {
-        return SHA1Cipher.equals(SHA1.sha1(plainText));
+        return SHA1Cipher.equals(SHA1.sha1(AESUtil.encrypt(plainText,SECRET_KEY)));
+//        System.out.println(SHA1Cipher);
+//        System.out.println(SHA1.sha1(plainText));
+//        System.out.println(SHA1.sha1(AESUtil.encrypt(plainText,SECRET_KEY)));
+//        System.out.println("________________");
+//        return SHA1Cipher.equals((SHA1.sha1(plainText)));
     }
 }

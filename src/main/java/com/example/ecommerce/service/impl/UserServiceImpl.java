@@ -57,14 +57,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUserName(AESUtil.decrypt(userRegisterForm.getUserName()));
         user.setGender(Integer.parseInt(AESUtil.decrypt(userRegisterForm.getGender())));
         user.setMobile(AESUtil.decrypt(userRegisterForm.getMobile()));
-
+//        System.out.println(user);
         //MAC验证
         boolean a = AESUtil.MACVerify(user.getLoginName(), userRegisterForm.getSHA1LoginName());
         boolean b = AESUtil.MACVerify(AESUtil.decrypt(userRegisterForm.getPassword()), userRegisterForm.getSHA1Password());
         boolean c = AESUtil.MACVerify(user.getUserName(), userRegisterForm.getSHA1UserName());
         boolean d = AESUtil.MACVerify(user.getGender().toString(), userRegisterForm.getSHA1Gender());
         boolean e = AESUtil.MACVerify(user.getMobile(), userRegisterForm.getSHA1Mobile());
-        if(a&b&c&d&e){
+        if(!(a&b&c&d&e)){
             log.info("【用户注册】数据传输内容出错");
             throw new EcommerceException(ResponseEnum.USER_REGISTER_DATA_ERROR);
         }
