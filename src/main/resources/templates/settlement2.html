@@ -12,6 +12,11 @@
     <title>确认订单</title>
     <th:block th:include="common.html :: source"></th:block>
     <script type="text/javascript" src="/js/settlement.js"></script>
+    <script type="text/javascript" src="/js/RSA.js"></script>
+    <script th:src="@{https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js}"></script>
+    <script th:src="@{https://cdn.bootcdn.net/ajax/libs/jsencrypt/2.1.0/jsencrypt.min.js}"></script>
+    <script type="text/javascript" src="/js/crypto-js.min.js"></script>
+    <script type="text/javascript" src="/js/SHA1.js"></script>
 </head>
 <body>
 
@@ -78,11 +83,19 @@
 <!--&lt;!&ndash;                        <td width="395" th:text="${session.user.email}"></td>&ndash;&gt;-->
 <!--                    </tr>-->
 <!--                </table>-->
-                <div class="two_t">
-                    <span class="fr"></span>选择地址
-                </div>
-<!--                <form id="form" action="/cart/commit" method="post">-->
-                    <table border="0" class="peo_tab" style="width:1110px;" cellspacing="0" cellpadding="0">
+<!--                <div class="two_t">-->
+<!--                    <span class="fr"></span>选择地址-->
+<!--                </div>-->
+<!--&lt;!&ndash;                <form id="form" action="/cart/commit" method="post">&ndash;&gt;-->
+<!--                    <table border="0" class="peo_tab" style="width:1110px;" cellspacing="0" cellpadding="0">-->
+
+<!--&lt;!&ndash;                        <tr th:each="address:${addressList}">&ndash;&gt;-->
+<!--&lt;!&ndash;                            <td class="p_td" width="160">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <input type="radio" th:if="${address.isdefault == 1}" checked name="userAddress" th:value="${address.address}">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <input type="radio" th:if="${address.isdefault == 0}" name="userAddress" th:value="${address.address}">&ndash;&gt;-->
+<!--&lt;!&ndash;                            </td>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <td th:text="${address.address}"></td>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </tr>&ndash;&gt;-->
 
 <!--                        <tr th:each="address:${addressList}">-->
 <!--                            <td class="p_td" width="160">-->
@@ -92,32 +105,24 @@
 <!--                            <td th:text="${address.address}"></td>-->
 <!--                        </tr>-->
 
-                        <tr th:each="address:${addressList}">
-                            <td class="p_td" width="160">
-                                <input type="radio" th:if="${address.isdefault == 1}" checked name="userAddress" th:value="${address.address}">
-                                <input type="radio" th:if="${address.isdefault == 0}" name="userAddress" th:value="${address.address}">
-                            </td>
-                            <td th:text="${address.address}"></td>
-                        </tr>
+<!--                        <tr>-->
+<!--                            <td class="p_td" width="160">-->
+<!--                                新地址<input type="radio" name="userAddress" value="newAddress">-->
+<!--                            </td>-->
+<!--                            <td>-->
+<!--                                地址 <input type="text" value="" name="address" class="add_ipt"> -->
+<!--                                备注 <input type="text" value="" name="remark" class="add_ipt">-->
+<!--                            </td>-->
+<!--                        </tr>-->
 
-                        <tr>
-                            <td class="p_td" width="160">
-                                新地址<input type="radio" name="userAddress" value="newAddress">
-                            </td>
-                            <td>
-                                地址 <input type="text" value="" name="address" class="add_ipt"> 
-                                备注 <input type="text" value="" name="remark" class="add_ipt">
-                            </td>
-                        </tr>
-
-                    </table>
+<!--                    </table>-->
                     <div class="two_t">
                         <span class="fr"></span>收货人信息
                     </div>
                     <table border="0" class="peo_tab" style="width:1110px;" cellspacing="0" cellpadding="0">
                         <tr>
                             <td class="p_td" width="160">用户名称</td>
-                            <td width="395" th:text="${session.user.userName}"></td>
+                            <td width="395" th:text="${session.user.userName}" id="userName"></td>
 <!--                            <td><input type="text" name="username" value="${session.user.userName}" readonly="true" class="add_ipt"></td>-->
                             <td class="p_td">登录名称</td>
                             <td th:text="${session.user.loginName}"></td>
@@ -128,11 +133,46 @@
                             <!--                        <td class="p_td" width="160">电子邮件</td>-->
                             <!--                        <td width="395" th:text="${session.user.email}"></td>-->
                         </tr>
-<!--                        <tr>-->
-<!--                            <td class="p_td">银行卡号</td>-->
-<!--                            <td><input type="text" value="" name="cardnumber" class="add_ipt"></td>-->
-<!--                        </tr>-->
+                        <tr>
+                            <td class="p_td">银行卡号</td>
+                            <td><input type="text" value="" name="cardNumber" class="add_ipt"></td>
+                            <td class="p_td">银行卡密码</td>
+                            <td><input type="password" name="cardPassword" class="add_ipt"></td>
+                        </tr>
                     </table>
+                <div class="two_t">
+                    <span class="fr"></span>选择地址
+                </div>
+                <!--                <form id="form" action="/cart/commit" method="post">-->
+                <table border="0" class="peo_tab" style="width:1110px;" cellspacing="0" cellpadding="0">
+
+                    <!--                        <tr th:each="address:${addressList}">-->
+                    <!--                            <td class="p_td" width="160">-->
+                    <!--                                <input type="radio" th:if="${address.isdefault == 1}" checked name="userAddress" th:value="${address.address}">-->
+                    <!--                                <input type="radio" th:if="${address.isdefault == 0}" name="userAddress" th:value="${address.address}">-->
+                    <!--                            </td>-->
+                    <!--                            <td th:text="${address.address}"></td>-->
+                    <!--                        </tr>-->
+
+                    <tr th:each="address:${addressList}">
+                        <td class="p_td" width="160">
+                            <input type="radio" th:if="${address.isdefault == 1}" checked name="userAddress" th:value="${address.address}">
+                            <input type="radio" th:if="${address.isdefault == 0}" name="userAddress" th:value="${address.address}">
+                        </td>
+                        <td th:text="${address.address}"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="p_td" width="160">
+                            新地址<input type="radio" name="userAddress" value="newAddress">
+                        </td>
+                        <td>
+                            地址 <input type="text" value="" name="address" class="add_ipt"> 
+                            备注 <input type="text" value="" name="remark" class="add_ipt">
+                        </td>
+                    </tr>
+
+                </table>
                     <table border="0" style="width:900px; margin-top:20px;" cellspacing="0" cellpadding="0">
                         <tr height="70">
                             <td align="right">

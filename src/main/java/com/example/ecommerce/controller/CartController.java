@@ -19,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpSession;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * <p>
@@ -38,6 +39,7 @@ public class CartController {
     private CartService cartService;
     @Autowired
     private UserAddressService userAddressService;
+
 
     /**
      * 添加购物车
@@ -152,6 +154,7 @@ public class CartController {
         return null;
     }
 
+
     /**
      * 确认订单
      * @param httpSession
@@ -186,7 +189,10 @@ public class CartController {
     public ModelAndView commit(String userAddress,
                                String address,
                                String remark,
-                               HttpSession httpSession){
+                               String HPI,
+                               String eSignHOP,
+                               String eEncryptKey,
+                               HttpSession httpSession) throws Exception {
         if (userAddress == null) {
 
             log.info("【更新购物车】参数为空");
@@ -201,7 +207,7 @@ public class CartController {
         }
         ModelAndView modelAndView=new ModelAndView();
         modelAndView.setViewName("settlement3");
-        Orders orders=this.cartService.commit(userAddress,address,remark,user);
+        Orders orders=this.cartService.commit(userAddress,address,remark,HPI,eSignHOP,eEncryptKey,user);
         if(orders!=null){
             modelAndView.addObject("orders",orders);
             modelAndView.addObject("cartList",this.cartService.findVOListByUserId(user.getId()));

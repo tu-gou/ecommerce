@@ -53,6 +53,7 @@ function registerPost() {
     request.send(formData);
     request.onreadystatechange = function () {
         if (request.readyState == 4 && request.status == 200) {
+            alert("用户注册成功！");
             window.location.href = "/login";
         }
     }
@@ -75,10 +76,10 @@ function loginPost() {
 
 
     formData.append("loginName", loginName);
-    formData.append("password", password);
+    //formData.append("password", password);
 
     formData.append("SHA1LoginName",SHA1LoginName);
-    formData.append("SHA1Password",SHA1Password);
+   // formData.append("SHA1Password",SHA1Password);
 
 
 
@@ -94,7 +95,7 @@ function loginPost() {
                 let temp=SHA1Password+data;
                 let digest=sha1(temp);
                 let request2=new XMLHttpRequest();
-                request2.open('POST','/authentication1')
+                request2.open('POST','/user/authentication1');
                 let formData2=new FormData();
                 formData2.append('digest',digest);
                 request2.send(formData2);
@@ -104,6 +105,8 @@ function loginPost() {
                         window.alert("登录失败,请重试");
                         window.location.reload();
                     }else{
+                        //alert(6);
+                        //alert(digest);
                         window.location.replace("/productCategory/main");
                     }
                 }
@@ -122,7 +125,7 @@ function loginPost() {
     //         alert("-------------")
     //     }
     // })
-    //
+
 
     // /**
     //  * 处理 ajax 302 错误问题

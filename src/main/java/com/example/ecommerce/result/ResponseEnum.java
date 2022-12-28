@@ -20,7 +20,9 @@ public enum ResponseEnum {
     ORDER_DETAIL_CREATE_ERROR(15,"创建订单详情失败"),
     USER_ADDRESS_ADD_ERROR(17,"添加新地址失败"),
     USER_ADDRESS_SET_DEFAULT_ERROR(18,"默认地址修改失败"),
-    USER_REGISTER_DATA_ERROR(19,"数据内容出错");
+    USER_REGISTER_DATA_ERROR(19,"数据内容出错"),
+    RSA_KEY_INSERT_ERROR(20,"公私钥插入有误"),
+    PAYMENT_SIGN_ERROR(21,"支付信息签名有误");
 
 
     public Integer getCode() {

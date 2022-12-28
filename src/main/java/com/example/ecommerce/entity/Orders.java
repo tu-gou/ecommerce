@@ -26,7 +26,7 @@ import lombok.EqualsAndHashCode;
       @TableId(value = "id", type = IdType.AUTO)
       private Integer id;
 
-    private Integer userId;
+    private String userId;
 
     private String loginName;
 

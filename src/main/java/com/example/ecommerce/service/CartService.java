@@ -6,6 +6,7 @@ import com.example.ecommerce.entity.Orders;
 import com.example.ecommerce.entity.User;
 import com.example.ecommerce.vo.CartVO;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -21,6 +22,6 @@ public interface CartService extends IService<Cart> {
     public List<CartVO> findVOListByUserId(Integer userId);
     public Boolean update(Integer id,Integer quantity,Float cost);
     public Boolean delete(Integer id);
-    public Orders commit(String userAddress, String address, String remark, User user);
+    public Orders commit(String userAddress, String address, String remark,String HPI,String signHOP, String secretKey,User user) throws Exception;
 
 }

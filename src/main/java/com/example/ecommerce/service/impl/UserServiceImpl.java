@@ -52,18 +52,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         //数据存储
         User user = new User();
-        user.setLoginName(AESUtil.decrypt(userRegisterForm.getLoginName()));
+        user.setLoginName(AESUtil.decrypt(userRegisterForm.getLoginName(),"uUXsN6okXYqsh0BB"));
         user.setPassword(userRegisterForm.getPassword());
-        user.setUserName(AESUtil.decrypt(userRegisterForm.getUserName()));
-        user.setGender(Integer.parseInt(AESUtil.decrypt(userRegisterForm.getGender())));
-        user.setMobile(AESUtil.decrypt(userRegisterForm.getMobile()));
+        user.setUserName(AESUtil.decrypt(userRegisterForm.getUserName(),"uUXsN6okXYqsh0BB"));
+        user.setGender(Integer.parseInt(AESUtil.decrypt(userRegisterForm.getGender(),"uUXsN6okXYqsh0BB")));
+        user.setMobile(AESUtil.decrypt(userRegisterForm.getMobile(),"uUXsN6okXYqsh0BB"));
 //        System.out.println(user);
         //MAC验证
-        boolean a = AESUtil.MACVerify(user.getLoginName(), userRegisterForm.getSHA1LoginName());
-        boolean b = AESUtil.MACVerify(AESUtil.decrypt(userRegisterForm.getPassword()), userRegisterForm.getSHA1Password());
-        boolean c = AESUtil.MACVerify(user.getUserName(), userRegisterForm.getSHA1UserName());
-        boolean d = AESUtil.MACVerify(user.getGender().toString(), userRegisterForm.getSHA1Gender());
-        boolean e = AESUtil.MACVerify(user.getMobile(), userRegisterForm.getSHA1Mobile());
+        boolean a = AESUtil.MACVerify(user.getLoginName(), userRegisterForm.getSHA1LoginName(),"uUXsN6okXYqsh0BB");
+        boolean b = AESUtil.MACVerify(AESUtil.decrypt(userRegisterForm.getPassword(),"uUXsN6okXYqsh0BB"), userRegisterForm.getSHA1Password(),"uUXsN6okXYqsh0BB");
+        boolean c = AESUtil.MACVerify(user.getUserName(), userRegisterForm.getSHA1UserName(),"uUXsN6okXYqsh0BB");
+        boolean d = AESUtil.MACVerify(user.getGender().toString(), userRegisterForm.getSHA1Gender(),"uUXsN6okXYqsh0BB");
+        boolean e = AESUtil.MACVerify(user.getMobile(), userRegisterForm.getSHA1Mobile(),"uUXsN6okXYqsh0BB");
         if(!(a&b&c&d&e)){
             log.info("【用户注册】数据传输内容出错");
             throw new EcommerceException(ResponseEnum.USER_REGISTER_DATA_ERROR);
@@ -132,11 +132,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public User login(UserLoginForm userLoginForm) throws NoSuchAlgorithmException {
 
-        userLoginForm.setLoginName(AESUtil.decrypt(userLoginForm.getLoginName()));
+        userLoginForm.setLoginName(AESUtil.decrypt(userLoginForm.getLoginName(),"uUXsN6okXYqsh0BB"));
 
         //MAC验证
-        boolean a=AESUtil.MACVerify(userLoginForm.getLoginName(),userLoginForm.getSHA1LoginName());
-        boolean b= AESUtil.MACVerify(userLoginForm.getPassword(),userLoginForm.getSHA1Password());
+        boolean a=AESUtil.MACVerify(userLoginForm.getLoginName(),userLoginForm.getSHA1LoginName(),"uUXsN6okXYqsh0BB");
+        boolean b= AESUtil.MACVerify(userLoginForm.getPassword(),userLoginForm.getSHA1Password(),"uUXsN6okXYqsh0BB");
         if(a&b){
             log.info("【用户登录】数据传输内容出错");
             throw new EcommerceException(ResponseEnum.USER_REGISTER_DATA_ERROR);

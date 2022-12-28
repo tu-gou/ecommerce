@@ -8,6 +8,9 @@ import com.example.ecommerce.mapper.*;
 import com.example.ecommerce.result.ResponseEnum;
 import com.example.ecommerce.service.CartService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.example.ecommerce.utils.AESUtil;
+import com.example.ecommerce.utils.RsaUtils;
+import com.example.ecommerce.utils.SHA1;
 import com.example.ecommerce.vo.CartVO;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,6 +47,8 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
     private OrderDetailMapper orderDetailMapper;
     @Autowired
     private UserAddressMapper userAddressMapper;
+    @Autowired
+    private RsaMapper rsaMapper;
     @Override
     @Transactional
     public Boolean add(Cart cart) {
@@ -147,7 +153,27 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
 
     @Override
     @Transactional
-    public Orders commit(String userAddress,String address,String remark, User user) {
+    public Orders commit(String userAddress,String address,String remark,String HPI,String signHOP, String secretKey,User user) throws Exception {
+
+        System.out.println(signHOP);
+        //验证签名
+//        QueryWrapper<Rsa> queryWrapper2=new QueryWrapper<>();
+//        queryWrapper2.eq("user",user.getUserName());
+//        Rsa rsa=new Rsa();
+//        rsa=this.rsaMapper.selectOne(queryWrapper2);
+        String privateKey="MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAMBgF0F/y5TG5/pAnszschMKzcVctZY4XWzduZePRzILfUrOdhDsQMOpaRAgWmLypNfkz51iusgj+oUT2eKRm5/inQUI+aurNUHxfzr4Rf3znB9L/2sk+wfHbSUxH+FAPzapBug+n0YDM/xATi5X1+4XzOd3o3Prv1l5eE4wwI35AgMBAAECgYAGmq3ltN9OcNspJVOGTbY3VuM8S6vct7vmV0DONhAfxNL08NxPBatOBEh78h5kP/f+hOeHO8rVgN2yeJ1d6LmGzvPQeylo0WXzdNKLEw78ALhc0cD310+H3bM+ljedYV79G6rRb2dd2Nh/27e5jw2zN0NIQHym/zwdkiw8ZZ4c8QJBAPSMvZQ7jvnqHoL4/MCojGldCLyWUHbXOMoXeaxoyZcaw8AY1PqPHcFBudtT0new/JtudGSKI6WB/ad2zj+XrdECQQDJYfgt/t8r5Mq7/0dEBmcBhY8EED4FaaM95QFb0Lm0gdqQTPIAXrJWwgGDRxpuqmsq/C5Yyc8K7l83HFvuip+pAkAuE4Z0s3QQ6metTbRxqFAsWfcXcUrf2VU93oZyUZwJ+GUBgKxAOU7l5rhZ9sUlABfYQUt01gI5YPCl6OCbYrzBAkEAvG5JFHCpTZ70+9evTT1YYJoh6cFw5wujTSTckpbJTNc8NU1qG2KAKKG7XKTJXMdlI4F3tGiQrD/DJAQLGTbokQJBAJGfzA7+qGQy0rZPyB0qar9TYrOKlCZNs42Y8T+azrF1aD613aYGrHLU8j35rcY/B0S2umWDG3Y5W148ylWx9+I=";//填写已创建好的商家私钥
+        if(!(RsaUtils.decryptByPrivateKey(privateKey,signHOP)).equals(SHA1.sha1(SHA1.sha1(userAddress+address+remark)+HPI))){
+            log.info("【支付信息签名有误");
+            throw new EcommerceException(ResponseEnum.PAYMENT_SIGN_ERROR);
+        }
+
+        //获取对称加密密钥
+        String key= RsaUtils.decryptByPrivateKey(privateKey,secretKey);
+
+        userAddress= AESUtil.decrypt(userAddress,key);
+        address=AESUtil.decrypt(address,key);
+        remark=AESUtil.decrypt(remark,key);
+
         //处理地址
         if(!userAddress.equals("newAddress")){//未选择新地址
             address=userAddress;
@@ -170,9 +196,10 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
             }
 
         }
+
         //创建订单主表
         Orders orders=new Orders();
-        orders.setUserId(user.getId());
+        orders.setUserId(user.getId().toString());
         orders.setLoginName(user.getLoginName());
         orders.setUserAddress(address);
         orders.setCost(this.cartMapper.getCostByUserId(user.getId()));
@@ -181,11 +208,21 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
         String serialNumber=formatter.format(date).toString();
         orders.setSerialnumber(serialNumber);
         orders.setUpdateDate(LocalDateTime.now());
-        int insert = this.ordersMapper.insert(orders);
+
+        //订单主表存储加密
+        Orders orders1=new Orders();
+        orders1.setUserId(AESUtil.encrypt(user.getId().toString(),"uUXsN6okXYqsh0BB"));
+        orders1.setLoginName(AESUtil.encrypt(user.getLoginName(),"uUXsN6okXYqsh0BB"));
+        orders1.setUserAddress(AESUtil.encrypt(address,"uUXsN6okXYqsh0BB"));
+        orders1.setCost(this.cartMapper.getCostByUserId(user.getId()));
+        orders1.setSerialnumber(AESUtil.encrypt(serialNumber,"uUXsN6okXYqsh0BB"));
+        orders1.setUpdateDate(LocalDateTime.now());
+        int insert = this.ordersMapper.insert(orders1);
         if (insert !=1) {
             log.info("【确认订单】创建订单主表失败");
             throw new EcommerceException(ResponseEnum.ORDERS_CREATE_ERROR);
         }
+
         //创建订单从表
         QueryWrapper<Cart> queryWrapper=new QueryWrapper<>();
         queryWrapper.eq("user_id",user.getId());
@@ -193,7 +230,7 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
         for (Cart cart : carts) {
             OrderDetail orderDetail=new OrderDetail();
             BeanUtils.copyProperties(cart,orderDetail);
-            orderDetail.setOrderId(orders.getId());
+            orderDetail.setOrderId(1);
             int insert1 = this.orderDetailMapper.insert(orderDetail);
                 if (insert1 == 0) {
                     log.info("【确认订单】创建订单详情失败");

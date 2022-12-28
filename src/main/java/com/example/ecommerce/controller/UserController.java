@@ -2,6 +2,7 @@ package com.example.ecommerce.controller;
 
 
 import com.baomidou.mybatisplus.core.assist.ISqlRunner;
+import com.baomidou.mybatisplus.core.conditions.SharedString;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.ecommerce.entity.User;
 import com.example.ecommerce.entity.UserAddress;
@@ -72,7 +73,7 @@ public class UserController {
      */
     @PostMapping("/register")
     public String register(@Valid UserRegisterForm userRegisterForm, BindingResult bindingResult) throws NoSuchAlgorithmException {//封装所有的前台注册产生的错误
-        System.out.println(userRegisterForm);
+//        System.out.println(userRegisterForm);
         //用户信息非空校验
         if (bindingResult.hasErrors()) {
             log.info("【用户注册】用户信息不能为空");//控制台打印错误信息
@@ -119,13 +120,16 @@ public class UserController {
      */
     @PostMapping("/authentication0")
     @ResponseBody
-    public String Auth0(@Valid UserLoginForm userLoginForm, HttpServletResponse response,HttpSession httpSession) throws NoSuchAlgorithmException {
+    public String Auth0(/*@Valid UserLoginForm userLoginForm,*/ String loginName,String SHA1LoginName,HttpServletResponse response,HttpSession httpSession) throws NoSuchAlgorithmException {
 //        user_account user=mapper.getUser(username,password);
 //        String ack;
 //        if(user==null){
 //            ack="no";
-        String userName=AESUtil.decrypt(userLoginForm.getLoginName());
-        String password=userLoginForm.getPassword();
+        UserLoginForm userLoginForm=new UserLoginForm();
+        userLoginForm.setLoginName(loginName);
+        userLoginForm.setSHA1LoginName(SHA1LoginName);
+        String userName=AESUtil.decrypt(userLoginForm.getLoginName(),"uUXsN6okXYqsh0BB");
+        String password="";
         String ack;
         //判断用户名是否存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -136,6 +140,9 @@ public class UserController {
             log.info("【用户登录】用户名不存在");
             throw new EcommerceException(ResponseEnum.USERNAME_NOT_EXISTS);
         } else{
+            password=user.getPassword();
+            userLoginForm.setPassword(password);
+            userLoginForm.setSHA1Password(SHA1.sha1(password));
             Cookie cookie0=new Cookie("username",userName);
             Cookie cookie1=new Cookie("password",password);
             response.addCookie(cookie0);
@@ -143,6 +150,7 @@ public class UserController {
             ack= GenUtil.generate();
             inquiry=ack;
         }
+
 
         User login = this.userService.login(userLoginForm);
         httpSession.setAttribute("user" ,login);
@@ -152,20 +160,29 @@ public class UserController {
     @PostMapping("/authentication1")
     @ResponseBody
     public String Auth1(HttpServletRequest request, String digest) throws NoSuchAlgorithmException {
+        System.out.println(digest);
         Cookie[] cookies=request.getCookies();
         String hashcode="";
         for(Cookie cookie:cookies){
 //            if(cookie.getName().equals("password")){
 //                hashcode=mapper.getHashcode(cookie.getValue());
 //            }
-            if (cookie.getName().equals("SHA1LoginName")) {
+            if (cookie.getName().equals("username")) {
 
-                hashcode=cookie.getValue();
+                //hashcode=cookie.getValue();
+                String name =cookie.getValue();
+                QueryWrapper<User> queryWrapper=new QueryWrapper<>();
+                queryWrapper.eq("login_name",name);
+                User user = this.userMapper.selectOne(queryWrapper);
+                String password=user.getPassword();
+                hashcode=SHA1.sha1(password);
+                System.out.println("6666666666666666666666666666");
             }
         }
+
         String digest2= SHA1.sha1(hashcode+inquiry);
-        System.out.println(hashcode+inquiry);
-        System.out.println(digest2);
+//        System.out.println(hashcode+inquiry);
+//        System.out.println(digest2);
         if(digest2.equals(digest)){
             return "yes";
         }else{

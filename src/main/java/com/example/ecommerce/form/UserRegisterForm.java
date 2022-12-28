@@ -24,4 +24,6 @@ public class UserRegisterForm {//可以对非浏览器提交的数据进行校�
     private String SHA1Password;
     private String SHA1Gender;
     private String SHA1Mobile;
+
+   // private String secretKey;
 }
